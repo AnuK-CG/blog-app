@@ -5,17 +5,44 @@ import { selectUserInput, setBlogData } from "../reducers";
 import BlogComments from "./BlogComments";
 import "../styling/blogs.css";
 import { Input } from "@material-ui/core";
+import Stack from '@mui/material/Stack';  
+import Button from '@mui/material/Button';  
+let commentCounter = 1;
 
 const Blogs = () => {
   const [selectedBlogId, setSelectedBlogId] = useState(null);
   const [showComment, setShowComment] = useState("");
-  const[inputvalue,setInputValue]=useState("");
+  const[inputCmtVal,setInputCmtVal]=useState("");
 
   const handleViewCommnets = (id) => {
-    
+    clearCommentInput();
     setShowComment(id);
+    
 
   };
+  const clearCommentInput = () => {
+    
+    setInputCmtVal("");
+  }
+  const addComment = () =>{
+    axios
+      .post("https://jsonplaceholder.typicode.com/posts/1/comments", [
+          {
+            "postId": inputCmtVal.id,
+            "id": 1,
+            "name": "id labore ex et quam laborum",
+            "email": "Eliseo@gardner.biz",
+            "body": inputCmtVal.comment     
+          },
+         ])
+      .then((response) => {
+        console.log("Data:", response.data); 
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+      
+  }
 
   const searchInput = useSelector(selectUserInput);
   console.log("Going to fetch API");
@@ -23,7 +50,7 @@ const Blogs = () => {
   // .then(response => response.json())
   // .then(json => {
   // })
-  console.log(".........",inputvalue);
+  console.log(".........",inputCmtVal);
   const dispatch = useDispatch();
   const [lstBlogs, setBlogs] = useState();
 
@@ -66,7 +93,7 @@ const Blogs = () => {
               <div
                 className="commentCls"
                 id={blogObj?.id}
-                onClick={() => handleViewCommnets(blogObj?.id)}
+                onClick={() =>{ handleViewCommnets(blogObj?.id)}}
               >
                 💬
               </div>
@@ -78,9 +105,13 @@ const Blogs = () => {
                 )}{" "}
               </div>
               {showComment === blogObj?.id && (
+                <div>
                 <lable>
-                  Comment <Input onChange={(e)=>setInputValue(e.target.value)}></Input>{" "}
+                  Comment <Input value={inputCmtVal.comment} onChange={(e)=>setInputCmtVal({id:blogObj?.id,comment:e.target.value})}></Input>
                 </lable>
+                <Button variant="contained" onClick={addComment} >Post</Button>  
+                <Button variant="outlined" onClick={clearCommentInput}>Clear</Button>  
+                </div>
               )}
             </div>
           </a>
